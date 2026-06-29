@@ -24,7 +24,7 @@
         :root { --bg: #050505; --text: #fff; --muted: #a1a1aa; --gl: #ff0000; --gd: #8b0000; --gdd: #4a0000; --ez: cubic-bezier(.22, 1, .36, 1); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Plus Jakarta Sans, sans-serif; }
         
-        /* Estado Inicial (Hero Screen) */
+        /* Estado Inicial: Apenas Hero visível */
         body { display: flex; justify-content: center; align-items: center; min-height: 100vh; position: relative; }
 
         .ms-ambient { z-index: 0; background: var(--bg); justify-content: center; align-items: center; display: flex; position: absolute; inset: 0; overflow: hidden; }
@@ -47,15 +47,17 @@
         .hero-logo-wrap img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; border-radius: 1.75rem; background: transparent; }
         .discord-link { position: fixed; bottom: 30px; right: 30px; color: #5865F2; font-size: 2.5rem; text-decoration: none; z-index: 9999; }
         
-        /* Hub Screen (Escondido por padrão) */
-        .hub-screen { display: none; width: 100%; }
+        /* Esconde a tela do Hub completamente no início */
+        .hub-screen { display: none !important; width: 100%; }
 
-        /* Estado Ativo: Quando o Hub é aberto */
+        /* Alternância de Estado (Quando a classe .show-hub é injetada) */
         body.show-hub { display: block !important; }
-        body.show-hub .ms-ambient, body.show-hub .discord-link, body.show-hub .ms-wrap { display: none !important; }
+        body.show-hub .ms-ambient, 
+        body.show-hub .discord-link, 
+        body.show-hub .ms-wrap { display: none !important; }
         body.show-hub .hub-screen { display: block !important; }
 
-        /* Elementos Internos do Hub */
+        /* Estilos do Painel do Hub */
         #particleCanvas { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; opacity: 0.3; pointer-events: none; }
         .glass-nav { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         .glass-nav.scrolled { background: rgba(0, 0, 0, 0.8); border-bottom: 1px solid rgba(239, 68, 68, 0.3); }
@@ -190,10 +192,21 @@
 
         function animateCount(elementId, target) { var el = document.getElementById(elementId); var current = 0; var increment = target / 40; var timer = setInterval(function() { current += increment; if (current >= target) { current = target; clearInterval(timer); } el.textContent = Math.floor(current); }, 30); }
 
-        function selectTab(nivel) { var tabs = document.querySelectorAll('.tab-btn'); tabs.forEach(t => t.classList.remove('active')); event.currentTarget.classList.add('active'); renderCategory(nivel); }
+        function selectTab(nivel) { 
+            var tabs = document.querySelectorAll('.tab-btn'); 
+            tabs.forEach(t => t.classList.remove('active')); 
+            if(event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+            renderCategory(nivel); 
+        }
 
         function renderCategory(nivel) {
             var container = document.getElementById('categoryContent');
+            
+            // CORREÇÃO CRÍTICA: Limpa completamente o container antes de criar a nova aba
+            container.innerHTML = ''; 
+
             var filtered = apostilas.filter(a => a.nivel === nivel);
             var grouped = {};
 
@@ -239,10 +252,14 @@
 
         function abrirHub() {
             document.body.classList.add('show-hub');
-            document.getElementById('hub-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        window.onload = function() { renderCategory('fundamental-II'); animateCount("totalCount", apostilas.length); lucide.createIcons(); };
+        window.onload = function() { 
+            renderCategory('fundamental-II'); 
+            animateCount("totalCount", apostilas.length); 
+            lucide.createIcons(); 
+        };
     </script>
 </body>
 </html>
