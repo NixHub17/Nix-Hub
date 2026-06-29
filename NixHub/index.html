@@ -24,7 +24,7 @@
         :root { --bg: #050505; --text: #fff; --muted: #a1a1aa; --gl: #ff0000; --gd: #8b0000; --gdd: #4a0000; --ez: cubic-bezier(.22, 1, .36, 1); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Plus Jakarta Sans, sans-serif; }
         
-        /* Estado Inicial: Apenas Hero visível */
+        /* Estado Inicial */
         body { display: flex; justify-content: center; align-items: center; min-height: 100vh; position: relative; }
 
         .ms-ambient { z-index: 0; background: var(--bg); justify-content: center; align-items: center; display: flex; position: absolute; inset: 0; overflow: hidden; }
@@ -47,20 +47,25 @@
         .hero-logo-wrap img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; border-radius: 1.75rem; background: transparent; }
         .discord-link { position: fixed; bottom: 30px; right: 30px; color: #5865F2; font-size: 2.5rem; text-decoration: none; z-index: 9999; }
         
-        /* Esconde a tela do Hub completamente no início */
+        /* Hub Screen */
         .hub-screen { display: none !important; width: 100%; }
 
-        /* Alternância de Estado (Quando a classe .show-hub é injetada) */
         body.show-hub { display: block !important; }
-        body.show-hub .ms-ambient, 
-        body.show-hub .discord-link, 
-        body.show-hub .ms-wrap { display: none !important; }
+        body.show-hub .ms-ambient, body.show-hub .discord-link, body.show-hub .ms-wrap { display: none !important; }
         body.show-hub .hub-screen { display: block !important; }
 
-        /* Estilos do Painel do Hub */
         #particleCanvas { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; opacity: 0.3; pointer-events: none; }
-        .glass-nav { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        .glass-nav.scrolled { background: rgba(0, 0, 0, 0.8); border-bottom: 1px solid rgba(239, 68, 68, 0.3); }
+        
+        /* SOLUÇÃO DO BUG: Trocado backdrop-filter por cor sólida no mobile para evitar pane na GPU */
+        .glass-nav { background: #0c0c0c; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-nav.scrolled { background: #050505; border-bottom: 1px solid rgba(239, 68, 68, 0.3); }
+        
+        /* Mantém o desfoque apenas em computadores/telas grandes onde não há bugs */
+        @media (min-width: 768px) {
+            .glass-nav { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(15px); }
+            .glass-nav.scrolled { background: rgba(0, 0, 0, 0.8); }
+        }
+
         .serie-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.25rem; transition: all 0.3s ease; }
         .serie-card:hover { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 10px 30px -10px rgba(239, 68, 68, 0.2); }
         .volume-item { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 0.75rem; transition: all 0.2s ease; margin-bottom: 10px; }
@@ -203,8 +208,6 @@
 
         function renderCategory(nivel) {
             var container = document.getElementById('categoryContent');
-            
-            // CORREÇÃO CRÍTICA: Limpa completamente o container antes de criar a nova aba
             container.innerHTML = ''; 
 
             var filtered = apostilas.filter(a => a.nivel === nivel);
